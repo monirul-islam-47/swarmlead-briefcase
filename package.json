@@ -1,0 +1,23 @@
+{
+  "name": "founders-briefcase",
+  "version": "1.0.0",
+  "description": "## Quick Navigation Guide",
+  "main": "build-professional.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monirul-islam-47/swarmlead-briefcase.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/monirul-islam-47/swarmlead-briefcase/issues"
+  },
+  "homepage": "https://github.com/monirul-islam-47/swarmlead-briefcase#readme",
+  "dependencies": {
+    "marked": "^16.0.0"
+  }
+}

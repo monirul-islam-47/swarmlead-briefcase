@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Investment Briefcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .tagline {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-badge {
+            background: var(--background);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+        
+        /* Navigation */
+        .nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0;
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav button:hover {
+            background: var(--background);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .nav button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 2rem;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: fit-content;
+            border: 1px solid var(--border);
+        }
+        
+        .sidebar h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        
+        .doc-list {
+            list-style: none;
+        }
+        
+        .doc-list li {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .doc-list li:hover {
+            background: var(--background);
+            border-color: var(--border);
+        }
+        
+        .doc-list li.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Document */
+        .document {
+            background: var(--surface);
+            border-radius: 0.5rem;
+            padding: 3rem;
+            min-height: 600px;
+            border: 1px solid var(--border);
+        }
+        
+        .document h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        
+        .document h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        
+        .document h3 {
+            font-size: 1.375rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+        
+        .document p {
+            margin-bottom: 1.25rem;
+            line-height: 1.75;
+            color: #334155;
+        }
+        
+        .document blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--text-light);
+        }
+        
+        /* Tables */
+        .document table {
+            width: 100%;
+            margin: 2rem 0;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .document th {
+            background: var(--background);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .document td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .document tr:hover {
+            background: var(--background);
+        }
+        
+        /* Code blocks */
+        .document pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .document code {
+            background: var(--background);
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+        
+        .document pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        
+        /* Lists */
+        .document ul, .document ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        .document li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Special boxes */
+        .highlight-box {
+            background: #eff6ff;
+            border: 1px solid #60a5fa;
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .metric-card {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .metric-card h4 {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* Feedback Panel */
+        .feedback-panel {
+            background: var(--surface);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: fit-content;
+            border: 1px solid var(--border);
+        }
+        
+        .feedback-panel h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-panel textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: vertical;
+        }
+        
+        .feedback-panel textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .feedback-panel button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .feedback-panel button:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: var(--text-light);
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 240px 1fr;
+            }
+            .feedback-panel {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .document {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1>SwarmLead</h1>
+                <p class="tagline">Investment Briefcase • Confidential</p>
+            </div>
+            <div class="user-section">
+                <div class="user-badge" id="userBadge">Loading...</div>
+                <button onclick="window.print()" title="Print">🖨️</button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <button onclick="showSection('executive')" class="active">Executive Summary</button>
+            <button onclick="showSection('vision')">Vision & Strategy</button>
+            <button onclick="showSection('product')">Product Definition</button>
+            <button onclick="showSection('technical')">Technical Foundation</button>
+            <button onclick="showSection('business')">Business Plan</button>
+            <button onclick="showSection('execution')">Execution</button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>📄 Documents</h3>
+            <ul class="doc-list" id="docList">
+                <li class="active">Executive Summary</li>
+            </ul>
+        </aside>
+        
+        <!-- Document Area -->
+        <main class="document" id="documentContent">
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading document...
+            </div>
+        </main>
+        
+        <!-- Feedback Panel -->
+        <aside class="feedback-panel">
+            <h3>💬 Your Feedback</h3>
+            <textarea id="feedbackText" placeholder="Share your thoughts on this section..."></textarea>
+            <button onclick="submitFeedback()">Submit Feedback</button>
+            <div id="feedbackStatus" style="margin-top: 1rem; font-size: 0.875rem; color: var(--success);"></div>
+        </aside>
+    </div>
+    
+    <script>
+        // Get auth data
+        const authData = JSON.parse(sessionStorage.getItem('swarmleadAuth') || '{}');
+        document.getElementById('userBadge').textContent = `👤 ${authData.reviewerName || 'Guest'}`;
+        
+        // Document structure
+        const documents = {
+            'executive': {
+                title: 'Executive Summary',
+                path: 'EXECUTIVE_SUMMARY.md'
+            },
+            'vision': {
+                title: 'Vision & Strategy',
+                docs: [
+                    { title: 'Vision & Strategy Overview', path: '01-vision-strategy/VISION_STRATEGY_OVERVIEW.md' },
+                    { title: 'Market Research Summary', path: '01-vision-strategy/MARKET_RESEARCH_SUMMARY.md' }
+                ]
+            },
+            'product': {
+                title: 'Product Definition',
+                docs: [
+                    { title: 'Product Definition Overview', path: '02-product-definition/PRODUCT_DEFINITION_OVERVIEW.md' }
+                ]
+            },
+            'technical': {
+                title: 'Technical Foundation',
+                docs: [
+                    { title: 'Technical Foundation Overview', path: '03-technical-foundation/TECHNICAL_FOUNDATION_OVERVIEW.md' },
+                    { title: 'AI/ML Implementation Guide', path: '03-technical-foundation/AI_ML_IMPLEMENTATION_GUIDE.md' }
+                ]
+            },
+            'business': {
+                title: 'Business Plan',
+                docs: [
+                    { title: 'Business Plan Overview', path: '04-business-plan/BUSINESS_PLAN_OVERVIEW.md' }
+                ]
+            },
+            'execution': {
+                title: 'Execution',
+                docs: [
+                    { title: 'Execution Plan Overview', path: '05-execution/EXECUTION_PLAN_OVERVIEW.md' }
+                ]
+            }
+        };
+        
+        let currentDoc = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('executive');
+        });
+        
+        // Navigation
+        function showSection(section) {
+            // Update nav
+            document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update sidebar
+            const docList = document.getElementById('docList');
+            docList.innerHTML = '';
+            
+            if (section === 'executive') {
+                const li = document.createElement('li');
+                li.textContent = documents[section].title;
+                li.classList.add('active');
+                li.onclick = () => loadDocument(documents[section].path, documents[section].title);
+                docList.appendChild(li);
+                loadDocument(documents[section].path, documents[section].title);
+            } else {
+                documents[section].docs.forEach((doc, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.title;
+                    if (index === 0) li.classList.add('active');
+                    li.onclick = () => {
+                        document.querySelectorAll('.doc-list li').forEach(item => item.classList.remove('active'));
+                        li.classList.add('active');
+                        loadDocument(doc.path, doc.title);
+                    };
+                    docList.appendChild(li);
+                });
+                if (documents[section].docs.length > 0) {
+                    loadDocument(documents[section].docs[0].path, documents[section].docs[0].title);
+                }
+            }
+        }
+        
+        // Load document
+        async function loadDocument(path, title) {
+            currentDoc = { path, title };
+            const content = document.getElementById('documentContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading document...</div>';
+            
+            try {
+                // Fetch from GitHub
+                const url = `https://api.github.com/repos/${authData.githubOwner}/${authData.githubRepo}/contents/${path}`;
+                const headers = authData.githubToken ? { 'Authorization': `token ${authData.githubToken}` } : {};
+                
+                const response = await fetch(url, { headers });
+                if (!response.ok) throw new Error('Failed to load document');
+                
+                const data = await response.json();
+                const markdown = atob(data.content);
+                
+                // For now, use the marked.js library
+                const html = marked.parse(markdown);
+                content.innerHTML = html;
+                
+            } catch (error) {
+                content.innerHTML = `
+                    <h1>Error Loading Document</h1>
+                    <p>Unable to load ${title}. Please check your connection.</p>
+                `;
+            }
+        }
+        
+        // Submit feedback
+        function submitFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value;
+            if (!feedbackText.trim()) return;
+            
+            // Store locally
+            const feedback = {
+                document: currentDoc.title,
+                text: feedbackText,
+                timestamp: new Date().toISOString(),
+                reviewer: authData.reviewerName
+            };
+            
+            // Save to localStorage
+            const allFeedback = JSON.parse(localStorage.getItem('swarmleadFeedback') || '[]');
+            allFeedback.push(feedback);
+            localStorage.setItem('swarmleadFeedback', JSON.stringify(allFeedback));
+            
+            // Clear form and show success
+            document.getElementById('feedbackText').value = '';
+            document.getElementById('feedbackStatus').textContent = '✓ Feedback saved successfully';
+            setTimeout(() => {
+                document.getElementById('feedbackStatus').textContent = '';
+            }, 3000);
+        }
+    </script>
+    
+    <!-- Include marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Configure marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            tables: true,
+            sanitize: false
+        });
+    </script>
+</body>
+</html>
