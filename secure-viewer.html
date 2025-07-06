@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Investment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+        
+        /* Auth Screen */
+        .auth-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            padding: 2rem;
+        }
+        
+        .auth-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .auth-card h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .auth-card .subtitle {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-card input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .auth-card input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .auth-card button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .auth-card button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        /* Main App */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        /* Main Layout */
+        .main-layout {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        /* Document Viewer */
+        .document-viewer {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            height: 80vh;
+        }
+        
+        .document-viewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Document Navigation */
+        .doc-nav {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+        
+        .doc-nav button {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .doc-nav button:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+        
+        .doc-nav button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        /* Feedback Panel */
+        .feedback-panel {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .feedback-panel h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-form textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .feedback-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .feedback-form button:hover {
+            background: #059669;
+        }
+        
+        .feedback-status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #166534;
+            display: none;
+        }
+        
+        /* Comments List */
+        .comments-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .comments-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .comment {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .comment-meta {
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comment-text {
+            color: #334155;
+            line-height: 1.5;
+        }
+        
+        /* Download button */
+        .download-btn {
+            margin-top: 2rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: white;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .feedback-panel {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <h1>SwarmLead</h1>
+            <p class="subtitle">Investment Portal Access</p>
+            
+            <form onsubmit="authenticate(event)">
+                <input 
+                    type="password" 
+                    id="accessKey" 
+                    placeholder="Access Key" 
+                    required
+                    autofocus
+                >
+                <input 
+                    type="text" 
+                    id="reviewerName" 
+                    placeholder="Your Name" 
+                    required
+                >
+                <button type="submit">Access Documents</button>
+            </form>
+            
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+    
+    <!-- Main Application -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h2>SwarmLead Investment Briefcase</h2>
+                <div class="user-info">
+                    <span id="userName">Guest</span>
+                    <span>•</span>
+                    <span id="currentTime"></span>
+                    <button onclick="logout()" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">Logout</button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="main-layout">
+            <!-- Document Area -->
+            <div>
+                <div class="doc-nav">
+                    <button onclick="loadDocument('executive-summary.html')" class="active">Executive Summary</button>
+                    <button onclick="loadDocument('vision-strategy.html')">Vision & Strategy</button>
+                    <button onclick="loadDocument('market-research.html')">Market Research</button>
+                    <button onclick="loadDocument('product-definition.html')">Product Definition</button>
+                    <button onclick="loadDocument('technical-foundation.html')">Technical Foundation</button>
+                    <button onclick="loadDocument('ai-ml-guide.html')">AI/ML Guide</button>
+                    <button onclick="loadDocument('business-plan.html')">Business Plan</button>
+                    <button onclick="loadDocument('execution-plan.html')">Execution Plan</button>
+                </div>
+                <div class="document-viewer">
+                    <iframe id="docFrame" src=""></iframe>
+                </div>
+            </div>
+            
+            <!-- Feedback Panel -->
+            <div class="feedback-panel">
+                <h3>💬 Your Feedback</h3>
+                <div class="feedback-form">
+                    <textarea 
+                        id="feedbackText" 
+                        placeholder="Share your thoughts, questions, or suggestions about this document..."
+                    ></textarea>
+                    <button onclick="submitFeedback()">Submit Feedback</button>
+                </div>
+                <div class="feedback-status" id="feedbackStatus">
+                    ✓ Feedback saved successfully
+                </div>
+                
+                <div class="comments-section">
+                    <h4>Your Previous Comments</h4>
+                    <div id="commentsList">
+                        <p style="color: #94a3b8; font-size: 0.875rem;">No comments yet</p>
+                    </div>
+                </div>
+                
+                <button class="download-btn" onclick="downloadFeedback()">
+                    📥 Download All Feedback
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const CONFIG = {
+            validKeys: {
+                'INVESTOR2025': {
+                    name: 'General Investor Access',
+                    expires: '2026-03-01'
+                },
+                'VIP2025': {
+                    name: 'VIP Investor Access',
+                    expires: '2026-06-01'
+                }
+            }
+        };
+        
+        let currentUser = null;
+        let currentDoc = 'executive-summary.html';
+        let feedback = JSON.parse(localStorage.getItem('swarmleadFeedback') || '[]');
+        
+        // Authentication
+        function authenticate(event) {
+            event.preventDefault();
+            
+            const accessKey = document.getElementById('accessKey').value;
+            const reviewerName = document.getElementById('reviewerName').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // Reset error
+            errorMsg.style.display = 'none';
+            
+            // Validate key
+            const keyData = CONFIG.validKeys[accessKey];
+            if (!keyData) {
+                errorMsg.textContent = 'Invalid access key';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Check expiration
+            if (new Date() > new Date(keyData.expires)) {
+                errorMsg.textContent = 'Access key has expired';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Success
+            currentUser = {
+                name: reviewerName,
+                accessLevel: keyData.name,
+                loginTime: new Date().toISOString()
+            };
+            
+            sessionStorage.setItem('swarmleadUser', JSON.stringify(currentUser));
+            showApp();
+        }
+        
+        // Show main app
+        function showApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('userName').textContent = currentUser.name;
+            
+            // Update time
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // Load first document
+            loadDocument('executive-summary.html');
+            
+            // Load previous comments
+            loadComments();
+        }
+        
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        // Load document
+        function loadDocument(docName) {
+            currentDoc = docName;
+            
+            // Update active button
+            document.querySelectorAll('.doc-nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Load document in iframe
+            document.getElementById('docFrame').src = 'professional-docs/' + docName;
+            
+            // Track view
+            const analytics = JSON.parse(localStorage.getItem('swarmleadAnalytics') || '{}');
+            if (!analytics[docName]) {
+                analytics[docName] = { views: 0, time: 0 };
+            }
+            analytics[docName].views++;
+            analytics[docName].lastViewed = new Date().toISOString();
+            localStorage.setItem('swarmleadAnalytics', JSON.stringify(analytics));
+        }
+        
+        // Submit feedback
+        function submitFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+            if (!feedbackText) return;
+            
+            const comment = {
+                id: Date.now(),
+                document: currentDoc,
+                text: feedbackText,
+                author: currentUser.name,
+                timestamp: new Date().toISOString()
+            };
+            
+            feedback.push(comment);
+            localStorage.setItem('swarmleadFeedback', JSON.stringify(feedback));
+            
+            // Clear form
+            document.getElementById('feedbackText').value = '';
+            
+            // Show success
+            const status = document.getElementById('feedbackStatus');
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 3000);
+            
+            // Refresh comments
+            loadComments();
+        }
+        
+        // Load comments
+        function loadComments() {
+            const userComments = feedback.filter(c => c.author === currentUser.name);
+            const commentsList = document.getElementById('commentsList');
+            
+            if (userComments.length === 0) {
+                commentsList.innerHTML = '<p style="color: #94a3b8; font-size: 0.875rem;">No comments yet</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = userComments
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .map(comment => `
+                    <div class="comment">
+                        <div class="comment-meta">
+                            ${new Date(comment.timestamp).toLocaleString()} • ${comment.document.replace('.html', '')}
+                        </div>
+                        <div class="comment-text">${comment.text}</div>
+                    </div>
+                `).join('');
+        }
+        
+        // Download feedback
+        function downloadFeedback() {
+            const userFeedback = feedback.filter(c => c.author === currentUser.name);
+            const analytics = JSON.parse(localStorage.getItem('swarmleadAnalytics') || '{}');
+            
+            const exportData = {
+                reviewer: currentUser.name,
+                exportDate: new Date().toISOString(),
+                feedback: userFeedback,
+                analytics: analytics
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SwarmLead-Feedback-${currentUser.name}-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+        
+        // Logout
+        function logout() {
+            sessionStorage.removeItem('swarmleadUser');
+            location.reload();
+        }
+        
+        // Check for existing session
+        window.onload = function() {
+            const savedUser = sessionStorage.getItem('swarmleadUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            }
+        };
+    </script>
+</body>
+</html>
