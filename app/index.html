@@ -561,7 +561,10 @@
                 const url = `https://api.github.com/repos/${authData.githubOwner}/${authData.githubRepo}/contents/${file}`;
                 const headers = authData.githubToken ? { 'Authorization': `token ${authData.githubToken}` } : {};
                 
-                const response = await fetch(url, { headers });
+                const response = await fetch(url, { 
+                    headers,
+                    mode: 'cors'
+                });
                 if (!response.ok) throw new Error('Failed to load document');
                 
                 const data = await response.json();
