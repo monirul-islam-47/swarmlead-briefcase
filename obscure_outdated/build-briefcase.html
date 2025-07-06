@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Briefcase Builder</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; }
+        .info { 
+            background: #e8f4f8; 
+            padding: 20px; 
+            border-radius: 5px; 
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .step {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #2980b9; }
+        #fileList {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 SwarmLead Briefcase Builder</h1>
+        
+        <div class="info">
+            <h3>This tool solves the local file access problem!</h3>
+            <p>It creates a single HTML file with all your documents embedded, while keeping your original markdown files separate for easy editing.</p>
+        </div>
+
+        <div class="step">
+            <h2>Step 1: Select Your Document Folder</h2>
+            <p>Select the folder containing all your markdown files:</p>
+            <input type="file" id="folderInput" webkitdirectory directory multiple />
+            <div id="fileList"></div>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Generate Briefcase</h2>
+            <p>Click below to create your all-in-one briefcase file:</p>
+            <button onclick="generateBriefcase()">Generate Briefcase HTML</button>
+        </div>
+
+        <div class="success" id="successMessage">
+            <h3>✅ Success!</h3>
+            <p>Your briefcase has been generated and downloaded as <strong>SwarmLead-Briefcase.html</strong></p>
+            <p>Share this single file with investors - it contains everything they need!</p>
+        </div>
+    </div>
+
+    <script>
+        let markdownFiles = {};
+
+        document.getElementById('folderInput').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            const mdFiles = files.filter(f => f.name.endsWith('.md'));
+            
+            document.getElementById('fileList').innerHTML = `<strong>Found ${mdFiles.length} markdown files:</strong><br>`;
+            
+            for (const file of mdFiles) {
+                const content = await file.text();
+                const path = file.webkitRelativePath || file.name;
+                markdownFiles[path] = content;
+                document.getElementById('fileList').innerHTML += `✓ ${path}<br>`;
+            }
+        });
+
+        function generateBriefcase() {
+            if (Object.keys(markdownFiles).length === 0) {
+                alert('Please select your document folder first!');
+                return;
+            }
+
+            // Generate the complete HTML with embedded content
+            const briefcaseHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Founder's Briefcase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .tagline { color: #7f8c8d; font-size: 18px; }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .nav button {
+            padding: 10px 20px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .nav button:hover { background: #2980b9; transform: translateY(-2px); }
+        .nav button.active { background: #2c3e50; }
+        
+        /* Content Area */
+        .content-area {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .sidebar h3 { margin-bottom: 15px; color: #2c3e50; }
+        .doc-list { list-style: none; }
+        .doc-list li {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .doc-list li:hover { background: #ecf0f1; }
+        .doc-list li.active { background: #3498db; color: white; }
+        
+        /* Main Content */
+        .main-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+        .main-content h1, .main-content h2, .main-content h3 {
+            margin: 20px 0 10px 0;
+            color: #2c3e50;
+        }
+        .main-content h1 { border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .main-content blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .main-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .main-content table th, .main-content table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .main-content table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .main-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .main-content pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        /* Feedback Panel */
+        .feedback-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .feedback-panel h3 { margin-bottom: 15px; color: #2c3e50; }
+        .feedback-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        .feedback-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .feedback-form button {
+            width: 100%;
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .feedback-form button:hover { background: #229954; }
+        
+        /* Comments */
+        .comments-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .comment {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .comment-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        /* Analytics */
+        .analytics {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-card h4 { color: #7f8c8d; font-size: 14px; }
+        .stat-card .value { font-size: 32px; color: #2c3e50; font-weight: bold; }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-area { grid-template-columns: 200px 1fr; }
+            .feedback-panel { display: none; }
+        }
+        @media (max-width: 768px) {
+            .content-area { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .nav, .sidebar, .feedback-panel, .analytics { display: none; }
+            .content-area { grid-template-columns: 1fr; }
+            .main-content { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SwarmLead Founder's Briefcase</h1>
+            <p class="tagline">The only LinkedIn tool that tracks content from post to €127,500 pipeline</p>
+        </div>
+        
+        <div class="nav">
+            <button onclick="showSection('executive')" class="active">Executive Summary</button>
+            <button onclick="showSection('vision')">Vision & Strategy</button>
+            <button onclick="showSection('product')">Product Definition</button>
+            <button onclick="showSection('technical')">Technical Foundation</button>
+            <button onclick="showSection('business')">Business Plan</button>
+            <button onclick="showSection('execution')">Execution</button>
+            <button onclick="showAnalytics()">📊 Analytics</button>
+        </div>
+        
+        <div class="content-area">
+            <div class="sidebar">
+                <h3>Documents</h3>
+                <ul class="doc-list" id="docList">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+            </div>
+            
+            <div class="main-content" id="mainContent">
+                <!-- Content will be loaded here -->
+            </div>
+            
+            <div class="feedback-panel">
+                <h3>💬 Add Feedback</h3>
+                <div class="feedback-form">
+                    <input type="text" id="reviewerName" placeholder="Your name">
+                    <textarea id="feedbackText" placeholder="Share your thoughts on this section..."></textarea>
+                    <button onclick="addFeedback()">Submit Feedback</button>
+                </div>
+                <div class="comments-list" id="commentsList">
+                    <!-- Comments will be shown here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="analytics" id="analytics" style="display: none;">
+            <h2>📊 Engagement Analytics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Total Time Spent</h4>
+                    <div class="value" id="totalTime">0m</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Documents Viewed</h4>
+                    <div class="value" id="docsViewed">0/9</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Comments Added</h4>
+                    <div class="value" id="commentsCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Most Viewed</h4>
+                    <div class="value" id="mostViewed" style="font-size: 16px;">-</div>
+                </div>
+            </div>
+            <h3 style="margin-top: 30px;">Document Engagement</h3>
+            <table style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Views</th>
+                        <th>Time Spent</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody id="engagementTable">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+            <button onclick="exportAnalytics()" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">📥 Export Analytics</button>
+        </div>
+    </div>
+    
+    <script>
+        // Embedded document content
+        const documentContent = ${JSON.stringify(markdownFiles)};
+        
+        // Document structure
+        const documents = {
+            'executive': {
+                title: 'Executive Summary',
+                file: 'EXECUTIVE_SUMMARY.md'
+            },
+            'vision': {
+                title: 'Vision & Strategy',
+                docs: [
+                    { title: 'Vision & Strategy Overview', file: '01-vision-strategy/VISION_STRATEGY_OVERVIEW.md' },
+                    { title: 'Market Research Summary', file: '01-vision-strategy/MARKET_RESEARCH_SUMMARY.md' }
+                ]
+            },
+            'product': {
+                title: 'Product Definition',
+                docs: [
+                    { title: 'Product Definition Overview', file: '02-product-definition/PRODUCT_DEFINITION_OVERVIEW.md' }
+                ]
+            },
+            'technical': {
+                title: 'Technical Foundation',
+                docs: [
+                    { title: 'Technical Foundation Overview', file: '03-technical-foundation/TECHNICAL_FOUNDATION_OVERVIEW.md' },
+                    { title: 'AI/ML Implementation Guide', file: '03-technical-foundation/AI_ML_IMPLEMENTATION_GUIDE.md' }
+                ]
+            },
+            'business': {
+                title: 'Business Plan',
+                docs: [
+                    { title: 'Business Plan Overview', file: '04-business-plan/BUSINESS_PLAN_OVERVIEW.md' }
+                ]
+            },
+            'execution': {
+                title: 'Execution',
+                docs: [
+                    { title: 'Execution Plan Overview', file: '05-execution/EXECUTION_PLAN_OVERVIEW.md' }
+                ]
+            }
+        };
+        
+        // Analytics tracking
+        let analytics = JSON.parse(localStorage.getItem('swarmleadAnalytics') || '{}');
+        let currentDoc = null;
+        let startTime = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('executive');
+            updateAnalytics();
+        });
+        
+        // Navigation
+        function showSection(section) {
+            // Update nav buttons
+            document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide analytics if showing
+            document.getElementById('analytics').style.display = 'none';
+            document.querySelector('.content-area').style.display = 'grid';
+            
+            // Update sidebar
+            const docList = document.getElementById('docList');
+            docList.innerHTML = '';
+            
+            if (section === 'executive') {
+                const li = document.createElement('li');
+                li.textContent = documents[section].title;
+                li.classList.add('active');
+                li.onclick = () => loadDocument(documents[section].file, documents[section].title);
+                docList.appendChild(li);
+                loadDocument(documents[section].file, documents[section].title);
+            } else {
+                documents[section].docs.forEach((doc, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.title;
+                    if (index === 0) li.classList.add('active');
+                    li.onclick = () => {
+                        document.querySelectorAll('.doc-list li').forEach(item => item.classList.remove('active'));
+                        li.classList.add('active');
+                        loadDocument(doc.file, doc.title);
+                    };
+                    docList.appendChild(li);
+                });
+                if (documents[section].docs.length > 0) {
+                    loadDocument(documents[section].docs[0].file, documents[section].docs[0].title);
+                }
+            }
+        }
+        
+        // Load document content from embedded data
+        function loadDocument(file, title) {
+            trackTime(); // Track time for previous doc
+            
+            currentDoc = file;
+            startTime = Date.now();
+            
+            // Track view
+            if (!analytics[file]) {
+                analytics[file] = { views: 0, time: 0, comments: [] };
+            }
+            analytics[file].views++;
+            
+            // Get content from embedded data
+            // Try different path formats
+            let markdown = documentContent[file] || 
+                         documentContent['founders-briefcase/' + file] || 
+                         documentContent[Object.keys(documentContent).find(key => key.endsWith(file))];
+            
+            if (markdown) {
+                const html = parseMarkdown(markdown);
+                document.getElementById('mainContent').innerHTML = html;
+            } else {
+                document.getElementById('mainContent').innerHTML = \`
+                    <h1>\${title}</h1>
+                    <p style="color: #e74c3c;">Document not found in the embedded content.</p>
+                \`;
+            }
+            
+            // Load comments
+            loadComments(file);
+            
+            // Save analytics
+            localStorage.setItem('swarmleadAnalytics', JSON.stringify(analytics));
+        }
+        
+        // Simple markdown parser
+        function parseMarkdown(markdown) {
+            let html = markdown
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                // Bold
+                .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\\*(.+?)\\*/g, '<em>$1</em>')
+                // Links
+                .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2">$1</a>')
+                // Blockquotes
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                // Code blocks
+                .replace(/\`\`\`([^\`]+)\`\`\`/g, '<pre><code>$1</code></pre>')
+                // Inline code
+                .replace(/\`([^\`]+)\`/g, '<code>$1</code>')
+                // Line breaks
+                .replace(/\\n\\n/g, '</p><p>')
+                // Tables (simple)
+                .replace(/\\|(.+)\\|/g, function(match) {
+                    const cells = match.split('|').filter(cell => cell.trim());
+                    return '<tr><td>' + cells.join('</td><td>') + '</td></tr>';
+                });
+            
+            // Wrap in paragraphs
+            html = '<p>' + html + '</p>';
+            
+            // Clean up
+            html = html.replace(/<p><h/g, '<h').replace(/<\\/h(\\d)><\\/p>/g, '</h$1>');
+            html = html.replace(/<p><blockquote>/g, '<blockquote><p>').replace(/<\\/blockquote><\\/p>/g, '</p></blockquote>');
+            html = html.replace(/<p><pre>/g, '<pre>').replace(/<\\/pre><\\/p>/g, '</pre>');
+            
+            return html;
+        }
+        
+        // Feedback functions
+        function addFeedback() {
+            const name = document.getElementById('reviewerName').value || 'Anonymous';
+            const text = document.getElementById('feedbackText').value;
+            
+            if (!text.trim()) return;
+            
+            if (!analytics[currentDoc]) {
+                analytics[currentDoc] = { views: 0, time: 0, comments: [] };
+            }
+            
+            const comment = {
+                name: name,
+                text: text,
+                timestamp: new Date().toISOString(),
+                doc: currentDoc
+            };
+            
+            analytics[currentDoc].comments.push(comment);
+            localStorage.setItem('swarmleadAnalytics', JSON.stringify(analytics));
+            
+            // Clear form
+            document.getElementById('feedbackText').value = '';
+            
+            // Reload comments
+            loadComments(currentDoc);
+            updateAnalytics();
+        }
+        
+        function loadComments(file) {
+            const commentsList = document.getElementById('commentsList');
+            const comments = analytics[file]?.comments || [];
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p style="color: #7f8c8d; font-size: 14px;">No comments yet. Be the first!</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => \`
+                <div class="comment">
+                    <div class="comment-meta">\${comment.name} • \${new Date(comment.timestamp).toLocaleString()}</div>
+                    <div>\${comment.text}</div>
+                </div>
+            \`).join('');
+        }
+        
+        // Analytics functions
+        function trackTime() {
+            if (currentDoc && startTime) {
+                const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+                analytics[currentDoc].time += timeSpent;
+                localStorage.setItem('swarmleadAnalytics', JSON.stringify(analytics));
+            }
+        }
+        
+        function showAnalytics() {
+            trackTime(); // Track current doc time
+            
+            document.querySelector('.content-area').style.display = 'none';
+            document.getElementById('analytics').style.display = 'block';
+            
+            updateAnalytics();
+        }
+        
+        function updateAnalytics() {
+            // Calculate totals
+            let totalTime = 0;
+            let totalComments = 0;
+            let docsViewed = 0;
+            let mostViewed = { doc: '', views: 0 };
+            
+            Object.entries(analytics).forEach(([doc, data]) => {
+                if (data.views > 0) docsViewed++;
+                totalTime += data.time;
+                totalComments += data.comments.length;
+                if (data.views > mostViewed.views) {
+                    mostViewed = { doc: doc.split('/').pop().replace('.md', ''), views: data.views };
+                }
+            });
+            
+            // Update stats
+            document.getElementById('totalTime').textContent = Math.floor(totalTime / 60) + 'm';
+            document.getElementById('docsViewed').textContent = docsViewed + '/8';
+            document.getElementById('commentsCount').textContent = totalComments;
+            document.getElementById('mostViewed').textContent = mostViewed.doc || '-';
+            
+            // Update table
+            const tableBody = document.getElementById('engagementTable');
+            tableBody.innerHTML = Object.entries(analytics).map(([doc, data]) => \`
+                <tr>
+                    <td>\${doc.split('/').pop().replace('.md', '')}</td>
+                    <td>\${data.views}</td>
+                    <td>\${Math.floor(data.time / 60)}m \${data.time % 60}s</td>
+                    <td>\${data.comments.length}</td>
+                </tr>
+            \`).join('');
+        }
+        
+        function exportAnalytics() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                analytics: analytics
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = \`swarmLead-analytics-\${new Date().toISOString().split('T')[0]}.json\`;
+            a.click();
+        }
+        
+        // Track page unload
+        window.addEventListener('beforeunload', trackTime);
+    </script>
+</body>
+</html>`;
+
+            // Download the generated file
+            const blob = new Blob([briefcaseHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'SwarmLead-Briefcase.html';
+            a.click();
+
+            document.getElementById('successMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

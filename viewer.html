@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Investment Briefcase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .tagline {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5a5fcf;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 15px;
+            padding: 10px;
+            background: #fee;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .security-note {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .security-note strong {
+            color: #27ae60;
+        }
+        
+        /* Main app container (hidden initially) */
+        #appContainer {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div class="auth-container" id="authContainer">
+        <div class="logo">🚀</div>
+        <h1>SwarmLead</h1>
+        <p class="tagline">Investment Briefcase Access</p>
+        
+        <form onsubmit="authenticate(event)">
+            <div class="input-group">
+                <label for="accessKey">Access Key</label>
+                <input 
+                    type="password" 
+                    id="accessKey" 
+                    placeholder="Enter your access key"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <div class="input-group">
+                <label for="reviewerName">Your Name</label>
+                <input 
+                    type="text" 
+                    id="reviewerName" 
+                    placeholder="For feedback attribution"
+                    required
+                >
+            </div>
+            
+            <button type="submit" id="submitBtn">Access Documents</button>
+        </form>
+        
+        <div class="error" id="errorMsg"></div>
+        
+        <div class="loading" id="loadingDiv">
+            <div class="spinner"></div>
+            <p>Securely loading documents...</p>
+        </div>
+        
+        <div class="security-note">
+            <strong>🔒 Bank-Level Security</strong><br>
+            Your access key is never stored and all connections are encrypted.
+        </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="appContainer"></div>
+    
+    <script>
+        // Configuration - UPDATE THESE
+        const CONFIG = {
+            // Your GitHub username and repo
+            githubOwner: 'monirul-islam-47',
+            githubRepo: 'swarmlead-briefcase',
+            
+            // Path to the main app HTML in your repo
+            mainAppPath: 'app/index.html',
+            
+            // Access keys (in production, use proper auth service)
+            validKeys: {
+                'INVESTOR2025': {
+                    name: 'General Investor Access',
+                    githubToken: 'YOUR_GITHUB_TOKEN',  // Optional for public repos
+                    expires: '2025-03-01'
+                },
+                // Add more keys as needed
+                'VIP2025': {
+                    name: 'VIP Investor Access',
+                    githubToken: 'YOUR_GITHUB_TOKEN',
+                    expires: '2025-06-01'
+                }
+            }
+        };
+        
+        async function authenticate(event) {
+            event.preventDefault();
+            
+            const accessKey = document.getElementById('accessKey').value;
+            const reviewerName = document.getElementById('reviewerName').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const loadingDiv = document.getElementById('loadingDiv');
+            
+            // Reset error
+            errorMsg.style.display = 'none';
+            errorMsg.textContent = '';
+            
+            // Validate key
+            const keyData = CONFIG.validKeys[accessKey];
+            if (!keyData) {
+                errorMsg.textContent = 'Invalid access key. Please check your invitation email.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Check expiration
+            if (new Date() > new Date(keyData.expires)) {
+                errorMsg.textContent = 'This access key has expired. Please contact the team.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loadingDiv.classList.add('active');
+            
+            try {
+                // Fetch the main app from GitHub
+                const appContent = await fetchMainApp(keyData.githubToken);
+                
+                // Store session data
+                sessionStorage.setItem('swarmleadAuth', JSON.stringify({
+                    reviewerName: reviewerName,
+                    accessLevel: keyData.name,
+                    githubToken: keyData.githubToken,
+                    githubOwner: CONFIG.githubOwner,
+                    githubRepo: CONFIG.githubRepo
+                }));
+                
+                // Load the app
+                loadApp(appContent);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorMsg.textContent = 'Failed to load documents. Please try again or contact support.';
+                errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                loadingDiv.classList.remove('active');
+            }
+        }
+        
+        async function fetchMainApp(token) {
+            // For public repos, token is optional
+            const headers = token ? { 'Authorization': `token ${token}` } : {};
+            
+            const url = `https://api.github.com/repos/${CONFIG.githubOwner}/${CONFIG.githubRepo}/contents/${CONFIG.mainAppPath}`;
+            
+            const response = await fetch(url, { headers });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch application');
+            }
+            
+            const data = await response.json();
+            const content = atob(data.content);
+            
+            return content;
+        }
+        
+        function loadApp(htmlContent) {
+            // Hide auth container
+            document.getElementById('authContainer').style.display = 'none';
+            
+            // Show app container
+            const appContainer = document.getElementById('appContainer');
+            appContainer.style.display = 'block';
+            
+            // Create a blob URL for the HTML content
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+            
+            // Create iframe to isolate the app
+            const iframe = document.createElement('iframe');
+            iframe.src = blobUrl;
+            iframe.sandbox = 'allow-scripts allow-same-origin allow-forms';
+            
+            appContainer.appendChild(iframe);
+            
+            // Pass session data to iframe
+            iframe.onload = function() {
+                // The main app can access sessionStorage to get auth info
+                // This way the GitHub token is available to the main app
+            };
+        }
+        
+        // Auto-focus on load
+        window.onload = function() {
+            document.getElementById('accessKey').focus();
+        };
+    </script>
+</body>
+</html>

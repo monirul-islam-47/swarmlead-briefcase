@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwarmLead Founder's Briefcase (Private Access)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Setup Modal */
+        .setup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .setup-modal.hidden { display: none; }
+        .setup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .setup-content h2 { margin-bottom: 20px; color: #2c3e50; }
+        .setup-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .setup-content input:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+        .setup-content button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .setup-content button:hover { background: #2980b9; }
+        .setup-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .security-note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ""; }
+            40% { content: "."; }
+            60% { content: ".."; }
+            80%, 100% { content: "..."; }
+        }
+        
+        /* Sync Status */
+        .sync-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 14px;
+            z-index: 100;
+        }
+        .sync-status.success { border-left: 4px solid #27ae60; }
+        .sync-status.error { border-left: 4px solid #e74c3c; }
+        .sync-status.syncing { border-left: 4px solid #f39c12; }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .tagline { color: #7f8c8d; font-size: 18px; }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .nav button {
+            padding: 10px 20px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .nav button:hover { background: #2980b9; transform: translateY(-2px); }
+        .nav button.active { background: #2c3e50; }
+        
+        /* Content Area */
+        .content-area {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .sidebar h3 { margin-bottom: 15px; color: #2c3e50; }
+        .doc-list { list-style: none; }
+        .doc-list li {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .doc-list li:hover { background: #ecf0f1; }
+        .doc-list li.active { background: #3498db; color: white; }
+        
+        /* Main Content */
+        .main-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+        .main-content h1, .main-content h2, .main-content h3 {
+            margin: 20px 0 10px 0;
+            color: #2c3e50;
+        }
+        .main-content h1 { border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .main-content blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .main-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .main-content table th, .main-content table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .main-content table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .main-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .main-content pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        /* Feedback Panel */
+        .feedback-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .feedback-panel h3 { margin-bottom: 15px; color: #2c3e50; }
+        .feedback-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        .feedback-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .feedback-form button {
+            width: 100%;
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .feedback-form button:hover { background: #229954; }
+        .feedback-form button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        /* Comments */
+        .comments-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .comment {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .comment-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-area { grid-template-columns: 200px 1fr; }
+            .feedback-panel { display: none; }
+        }
+        @media (max-width: 768px) {
+            .content-area { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Setup Modal -->
+    <div class="setup-modal" id="setupModal">
+        <div class="setup-content">
+            <h2>🔒 Private Repository Access</h2>
+            <div class="security-note">
+                <strong>🔐 Security Notice:</strong> This is a private repository. You'll need the access token provided in your invitation email.
+            </div>
+            <div class="setup-info">
+                <strong>Welcome to SwarmLead's Investment Briefcase</strong>
+                <p style="margin-top: 10px;">This secure viewer connects directly to our private GitHub repository to ensure you always see the latest documents.</p>
+            </div>
+            
+            <!-- Pre-filled with your repo details -->
+            <input type="text" id="githubOwner" value="YOUR_GITHUB_USERNAME" disabled>
+            <input type="text" id="githubRepo" value="swarmlead-briefcase" disabled>
+            <input type="password" id="githubToken" placeholder="Enter your access token (from email)" autofocus>
+            <input type="text" id="reviewerName" placeholder="Your name (for feedback attribution)">
+            <button onclick="connectToGitHub()">Access Documents</button>
+            
+            <p style="margin-top: 15px; font-size: 12px; color: #7f8c8d; text-align: center;">
+                Having issues? Contact: founder@swarmlead.de
+            </p>
+        </div>
+    </div>
+
+    <!-- Sync Status -->
+    <div class="sync-status hidden" id="syncStatus"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="header">
+            <h1>SwarmLead Founder's Briefcase</h1>
+            <p class="tagline">The only LinkedIn tool that tracks content from post to €127,500 pipeline</p>
+        </div>
+        
+        <div class="nav">
+            <button onclick="showSection('executive')" class="active">Executive Summary</button>
+            <button onclick="showSection('vision')">Vision & Strategy</button>
+            <button onclick="showSection('product')">Product Definition</button>
+            <button onclick="showSection('technical')">Technical Foundation</button>
+            <button onclick="showSection('business')">Business Plan</button>
+            <button onclick="showSection('execution')">Execution</button>
+            <button onclick="refreshFromGitHub()" title="Refresh from GitHub">🔄 Sync</button>
+            <button onclick="disconnect()" title="Disconnect" style="background: #e74c3c;">🚪 Exit</button>
+        </div>
+        
+        <div class="content-area">
+            <div class="sidebar">
+                <h3>Documents</h3>
+                <ul class="doc-list" id="docList">
+                    <li class="loading">Loading documents</li>
+                </ul>
+            </div>
+            
+            <div class="main-content" id="mainContent">
+                <div class="loading">Connecting to private repository</div>
+            </div>
+            
+            <div class="feedback-panel">
+                <h3>💬 Add Feedback</h3>
+                <div class="feedback-form">
+                    <textarea id="feedbackText" placeholder="Share your thoughts on this section..."></textarea>
+                    <button onclick="submitFeedback()" id="submitBtn">Submit to GitHub</button>
+                </div>
+                <div class="comments-list" id="commentsList">
+                    <p style="color: #7f8c8d; font-size: 14px;">Your feedback will be securely submitted as GitHub issues</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // GitHub configuration - PRE-CONFIGURED FOR YOUR PRIVATE REPO
+        let githubConfig = {
+            owner: 'YOUR_GITHUB_USERNAME',  // <- UPDATE THIS
+            repo: 'swarmlead-briefcase',    // <- UPDATE THIS IF DIFFERENT
+            token: '',
+            reviewer: ''
+        };
+        
+        // Document structure matching your folder organization
+        const documents = {
+            'executive': {
+                title: 'Executive Summary',
+                path: 'EXECUTIVE_SUMMARY.md'
+            },
+            'vision': {
+                title: 'Vision & Strategy',
+                docs: [
+                    { title: 'Vision & Strategy Overview', path: '01-vision-strategy/VISION_STRATEGY_OVERVIEW.md' },
+                    { title: 'Market Research Summary', path: '01-vision-strategy/MARKET_RESEARCH_SUMMARY.md' }
+                ]
+            },
+            'product': {
+                title: 'Product Definition',
+                docs: [
+                    { title: 'Product Definition Overview', path: '02-product-definition/PRODUCT_DEFINITION_OVERVIEW.md' }
+                ]
+            },
+            'technical': {
+                title: 'Technical Foundation',
+                docs: [
+                    { title: 'Technical Foundation Overview', path: '03-technical-foundation/TECHNICAL_FOUNDATION_OVERVIEW.md' },
+                    { title: 'AI/ML Implementation Guide', path: '03-technical-foundation/AI_ML_IMPLEMENTATION_GUIDE.md' }
+                ]
+            },
+            'business': {
+                title: 'Business Plan',
+                docs: [
+                    { title: 'Business Plan Overview', path: '04-business-plan/BUSINESS_PLAN_OVERVIEW.md' }
+                ]
+            },
+            'execution': {
+                title: 'Execution',
+                docs: [
+                    { title: 'Execution Plan Overview', path: '05-execution/EXECUTION_PLAN_OVERVIEW.md' }
+                ]
+            }
+        };
+        
+        let currentDoc = null;
+        let documentCache = {};
+        
+        // Initialize - check for saved session
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = sessionStorage.getItem('githubConfig');
+            if (saved) {
+                githubConfig = JSON.parse(saved);
+                document.getElementById('setupModal').classList.add('hidden');
+                loadDocuments();
+            }
+        });
+        
+        // Connect to GitHub
+        function connectToGitHub() {
+            const token = document.getElementById('githubToken').value;
+            const reviewer = document.getElementById('reviewerName').value;
+            
+            if (!token) {
+                alert('Please enter your access token');
+                return;
+            }
+            
+            if (!reviewer) {
+                alert('Please enter your name for feedback attribution');
+                return;
+            }
+            
+            githubConfig.token = token;
+            githubConfig.reviewer = reviewer;
+            
+            // Use sessionStorage instead of localStorage for better security
+            sessionStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+            document.getElementById('setupModal').classList.add('hidden');
+            loadDocuments();
+        }
+        
+        // Disconnect and clear session
+        function disconnect() {
+            if (confirm('This will clear your session. You\'ll need to re-enter your access token. Continue?')) {
+                sessionStorage.removeItem('githubConfig');
+                location.reload();
+            }
+        }
+        
+        // Load documents from GitHub
+        async function loadDocuments() {
+            showSyncStatus('Connecting to private repository...', 'syncing');
+            
+            try {
+                // Test connection with token
+                const testUrl = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}`;
+                const headers = { 'Authorization': `token ${githubConfig.token}` };
+                
+                const testResponse = await fetch(testUrl, { headers });
+                if (!testResponse.ok) {
+                    if (testResponse.status === 401) {
+                        throw new Error('Invalid access token');
+                    } else if (testResponse.status === 404) {
+                        throw new Error('Repository not found or no access');
+                    }
+                    throw new Error('Failed to connect to repository');
+                }
+                
+                showSyncStatus('Connected successfully', 'success');
+                showSection('executive');
+            } catch (error) {
+                showSyncStatus('Error: ' + error.message, 'error');
+                sessionStorage.removeItem('githubConfig');
+                document.getElementById('setupModal').classList.remove('hidden');
+            }
+        }
+        
+        // Fetch document from GitHub
+        async function fetchDocument(path) {
+            if (documentCache[path]) {
+                return documentCache[path];
+            }
+            
+            try {
+                const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${path}`;
+                const headers = { 'Authorization': `token ${githubConfig.token}` };
+                
+                const response = await fetch(url, { headers });
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${path}`);
+                }
+                
+                const data = await response.json();
+                const content = atob(data.content);
+                documentCache[path] = content;
+                return content;
+            } catch (error) {
+                console.error('Error fetching document:', error);
+                return `# Error Loading Document\n\nFailed to load ${path} from GitHub.\n\nError: ${error.message}`;
+            }
+        }
+        
+        // Submit feedback as GitHub issue
+        async function submitFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value;
+            if (!feedbackText.trim()) return;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const issueData = {
+                    title: `Feedback on ${currentDoc.title}`,
+                    body: `**Document:** ${currentDoc.path}\n**Reviewer:** ${githubConfig.reviewer}\n**Date:** ${new Date().toISOString()}\n\n---\n\n${feedbackText}`,
+                    labels: ['feedback', 'investor-review']
+                };
+                
+                const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/issues`;
+                const headers = {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json'
+                };
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(issueData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create issue');
+                }
+                
+                const issue = await response.json();
+                
+                // Clear form
+                document.getElementById('feedbackText').value = '';
+                showSyncStatus(`Feedback submitted as issue #${issue.number}`, 'success');
+                
+                // Show in comments
+                addCommentToList({
+                    reviewer: githubConfig.reviewer,
+                    text: feedbackText,
+                    timestamp: new Date().toISOString(),
+                    issueNumber: issue.number,
+                    issueUrl: issue.html_url
+                });
+                
+            } catch (error) {
+                showSyncStatus('Error submitting feedback: ' + error.message, 'error');
+                alert('Failed to submit feedback. Please check your connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit to GitHub';
+            }
+        }
+        
+        // Navigation
+        function showSection(section) {
+            // Update nav buttons
+            document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
+            
+            // Update sidebar
+            const docList = document.getElementById('docList');
+            docList.innerHTML = '';
+            
+            if (section === 'executive') {
+                const li = document.createElement('li');
+                li.textContent = documents[section].title;
+                li.classList.add('active');
+                li.onclick = () => loadDocument(documents[section].path, documents[section].title);
+                docList.appendChild(li);
+                loadDocument(documents[section].path, documents[section].title);
+            } else if (documents[section]?.docs) {
+                documents[section].docs.forEach((doc, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.title;
+                    if (index === 0) li.classList.add('active');
+                    li.onclick = () => {
+                        document.querySelectorAll('.doc-list li').forEach(item => item.classList.remove('active'));
+                        li.classList.add('active');
+                        loadDocument(doc.path, doc.title);
+                    };
+                    docList.appendChild(li);
+                });
+                if (documents[section].docs.length > 0) {
+                    loadDocument(documents[section].docs[0].path, documents[section].docs[0].title);
+                }
+            }
+        }
+        
+        // Load and display document
+        async function loadDocument(path, title) {
+            currentDoc = { path, title };
+            
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = '<div class="loading">Loading document from private repository</div>';
+            
+            const markdown = await fetchDocument(path);
+            const html = parseMarkdown(markdown);
+            mainContent.innerHTML = html;
+            
+            // Load existing issues as comments
+            loadIssuesAsComments();
+        }
+        
+        // Load GitHub issues as comments
+        async function loadIssuesAsComments() {
+            try {
+                const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/issues?labels=feedback&state=all`;
+                const headers = { 'Authorization': `token ${githubConfig.token}` };
+                
+                const response = await fetch(url, { headers });
+                if (!response.ok) return;
+                
+                const issues = await response.json();
+                const relevantIssues = issues.filter(issue => 
+                    issue.body && issue.body.includes(`**Document:** ${currentDoc.path}`)
+                );
+                
+                const commentsList = document.getElementById('commentsList');
+                if (relevantIssues.length === 0) {
+                    commentsList.innerHTML = '<p style="color: #7f8c8d; font-size: 14px;">No feedback yet for this document</p>';
+                    return;
+                }
+                
+                commentsList.innerHTML = relevantIssues.map(issue => {
+                    const reviewerMatch = issue.body.match(/\*\*Reviewer:\*\* (.+)/);
+                    const reviewer = reviewerMatch ? reviewerMatch[1] : 'Unknown';
+                    const feedbackStart = issue.body.indexOf('---') + 3;
+                    const feedback = issue.body.substring(feedbackStart).trim();
+                    
+                    return `
+                        <div class="comment">
+                            <div class="comment-meta">
+                                ${reviewer} • ${new Date(issue.created_at).toLocaleString()} • 
+                                <a href="${issue.html_url}" target="_blank" style="color: #3498db;">Issue #${issue.number}</a>
+                            </div>
+                            <div>${feedback}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading issues:', error);
+            }
+        }
+        
+        // Add comment to list
+        function addCommentToList(comment) {
+            const commentsList = document.getElementById('commentsList');
+            const commentHtml = `
+                <div class="comment">
+                    <div class="comment-meta">
+                        ${comment.reviewer} • ${new Date(comment.timestamp).toLocaleString()} • 
+                        <a href="${comment.issueUrl}" target="_blank" style="color: #3498db;">Issue #${comment.issueNumber}</a>
+                    </div>
+                    <div>${comment.text}</div>
+                </div>
+            `;
+            
+            if (commentsList.innerHTML.includes('No feedback yet')) {
+                commentsList.innerHTML = commentHtml;
+            } else {
+                commentsList.innerHTML = commentHtml + commentsList.innerHTML;
+            }
+        }
+        
+        // Refresh from GitHub
+        async function refreshFromGitHub() {
+            documentCache = {}; // Clear cache
+            showSyncStatus('Refreshing from GitHub...', 'syncing');
+            
+            // Reload current document
+            if (currentDoc) {
+                await loadDocument(currentDoc.path, currentDoc.title);
+            }
+            
+            showSyncStatus('Refreshed successfully', 'success');
+        }
+        
+        // Show sync status
+        function showSyncStatus(message, type) {
+            const status = document.getElementById('syncStatus');
+            status.textContent = message;
+            status.className = `sync-status ${type}`;
+            status.classList.remove('hidden');
+            
+            if (type === 'success') {
+                setTimeout(() => status.classList.add('hidden'), 3000);
+            }
+        }
+        
+        // Simple markdown parser
+        function parseMarkdown(markdown) {
+            let html = markdown
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                // Links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+                // Blockquotes
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                // Code blocks
+                .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>')
+                // Inline code
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                // Line breaks
+                .replace(/\n\n/g, '</p><p>')
+                // Tables (simple)
+                .replace(/\|(.+)\|/g, function(match) {
+                    const cells = match.split('|').filter(cell => cell.trim());
+                    return '<tr><td>' + cells.join('</td><td>') + '</td></tr>';
+                });
+            
+            // Wrap in paragraphs
+            html = '<p>' + html + '</p>';
+            
+            // Clean up
+            html = html.replace(/<p><h/g, '<h').replace(/<\/h(\d)><\/p>/g, '</h$1>');
+            html = html.replace(/<p><blockquote>/g, '<blockquote><p>').replace(/<\/blockquote><\/p>/g, '</p></blockquote>');
+            html = html.replace(/<p><pre>/g, '<pre>').replace(/<\/pre><\/p>/g, '</pre>');
+            
+            return html;
+        }
+    </script>
+</body>
+</html>
