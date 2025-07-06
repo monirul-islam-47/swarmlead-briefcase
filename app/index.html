@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwarmLead Founder's Briefcase</title>
+    <!-- Markdown parser library -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -224,6 +226,16 @@
             border-radius: 5px;
             overflow-x: auto;
             margin: 15px 0;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre;
+        }
+        
+        .document-content pre code {
+            background: transparent;
+            padding: 0;
+            font-size: inherit;
         }
         
         .document-content ul, .document-content ol {
@@ -674,67 +686,19 @@
             a.click();
         }
         
-        // Enhanced markdown parser
+        // Use marked.js for proper markdown parsing
         function parseMarkdown(markdown) {
-            let html = markdown
-                // Headers
-                .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                // Bold and italic
-                .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                // Links
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-                // Images
-                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%;">')
-                // Blockquotes
-                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-                // Code blocks
-                .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>')
-                // Inline code
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                // Lists
-                .replace(/^\* (.+)$/gim, '<li>$1</li>')
-                .replace(/^\d+\. (.+)$/gim, '<li>$1</li>')
-                // Line breaks
-                .replace(/\n\n/g, '</p><p>')
-                // Horizontal rules
-                .replace(/^---$/gim, '<hr>');
-            
-            // Wrap lists
-            html = html.replace(/(<li>.*<\/li>)/s, function(match) {
-                return '<ul>' + match + '</ul>';
+            // Configure marked options
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                tables: true,
+                sanitize: false,
+                smartLists: true,
+                smartypants: true
             });
             
-            // Tables
-            html = html.replace(/\|(.+)\|/g, function(match) {
-                if (match.includes('---')) return '';
-                const cells = match.split('|').filter(cell => cell.trim());
-                const isHeader = cells.some(cell => cell.includes('**'));
-                const tag = isHeader ? 'th' : 'td';
-                return '<tr><' + tag + '>' + cells.join('</' + tag + '><' + tag + '>') + '</' + tag + '></tr>';
-            });
-            html = html.replace(/(<tr>.*<\/tr>)/s, function(match) {
-                return '<table>' + match + '</table>';
-            });
-            
-            // Wrap in paragraphs
-            if (!html.startsWith('<')) {
-                html = '<p>' + html + '</p>';
-            }
-            
-            // Clean up
-            html = html.replace(/<p>(<h[1-6]>)/g, '$1').replace(/(<\/h[1-6]>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<blockquote>)/g, '$1').replace(/(<\/blockquote>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<pre>)/g, '$1').replace(/(<\/pre>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<ul>)/g, '$1').replace(/(<\/ul>)<\/p>/g, '$1');
-            html = html.replace(/<p>(<table>)/g, '$1').replace(/(<\/table>)<\/p>/g, '$1');
-            html = html.replace(/<p><\/p>/g, '');
-            
-            return html;
+            return marked.parse(markdown);
         }
     </script>
 </body>
